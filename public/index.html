@@ -18,20 +18,29 @@ h1 { color: #00ffd5; }
 input, button { padding: 10px; margin: 10px; border-radius: 5px; border: none; }
 input { width: 200px; }
 button { background: #00ffd5; color: #000; cursor: pointer; }
-#code { margin-top: 20px; font-weight: bold; }
+#codeContainer { margin-top: 20px; display: flex; align-items: center; gap: 10px; }
+#code { font-weight: bold; color: #00ffd5; }
 </style>
 </head>
 <body>
 <h1>WhatsApp Session Generator</h1>
 <input type="text" id="phone" placeholder="Enter phone number" />
 <button id="generate">Generate 8-digit Code</button>
-<div id="code"></div>
+
+<div id="codeContainer" style="display:none;">
+  <span id="code"></span>
+  <button id="copy">Copy</button>
+</div>
 
 <script>
-document.getElementById('generate').addEventListener('click', async () => {
+const generateBtn = document.getElementById('generate');
+const copyBtn = document.getElementById('copy');
+const codeDiv = document.getElementById('code');
+const codeContainer = document.getElementById('codeContainer');
+
+generateBtn.addEventListener('click', async () => {
   const phone = document.getElementById('phone').value.trim();
-  const codeDiv = document.getElementById('code');
-  if(!phone) return codeDiv.textContent = 'Enter your phone number';
+  if (!phone) return alert('Enter your phone number');
 
   try {
     const res = await fetch('/request-code', {
@@ -40,14 +49,24 @@ document.getElementById('generate').addEventListener('click', async () => {
       body: JSON.stringify({ phone })
     });
     const data = await res.json();
-    if(data.code){
-      codeDiv.textContent = `Send this code to WhatsApp and link: ${data.code}`;
+    if (data.code) {
+      codeDiv.textContent = data.code;
+      codeContainer.style.display = 'flex';
     } else {
       codeDiv.textContent = `Error: ${data.error}`;
+      codeContainer.style.display = 'flex';
     }
-  } catch(err) {
+  } catch (err) {
     codeDiv.textContent = `Error: ${err.message}`;
+    codeContainer.style.display = 'flex';
   }
+});
+
+copyBtn.addEventListener('click', () => {
+  if (!codeDiv.textContent) return;
+  navigator.clipboard.writeText(codeDiv.textContent)
+    .then(() => alert('Code copied to clipboard!'))
+    .catch(() => alert('Failed to copy code.'));
 });
 </script>
 </body>
