@@ -1,0 +1,15 @@
+{
+  "name": "whatsapp-session-generator",
+  "version": "2.0.0",
+  "description": "Generate WhatsApp session IDs via @whiskeysocket/baileys with modern UI",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "@whiskeysocket/baileys": "^6.6.0",
+    "ejs": "^3.1.9",
+    "express": "^4.18.2",
+    "pino": "^8.15.0"
+  }
+}
