@@ -1,187 +1,56 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <title>WhatsApp Session Generator</title>
+  <meta charset="UTF-8">
+  <title>WhatsApp Bot Pairing</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
-
-    * { box-sizing: border-box; margin:0; padding:0; font-family:'Inter',sans-serif; }
     body {
-      background: linear-gradient(135deg, #0e1117, #111827, #1e293b);
-      background-size: 300% 300%;
-      animation: gradientMove 10s ease infinite;
-      color:#e2e8f0;
-      min-height:100vh;
-      display:flex;
-      flex-direction:column;
-      justify-content:space-between;
-      align-items:center;
-      padding:2rem;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
     }
-    @keyframes gradientMove {
-      0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}
+    h1 { margin-bottom: 20px; }
+    input, button {
+      padding: 10px;
+      margin: 5px;
+      border-radius: 5px;
+      border: none;
+      font-size: 16px;
     }
-    .container{ max-width:600px; width:100%; }
-    header{text-align:center; margin-bottom:1.5rem;}
-    header h1{ font-weight:700; color:#38bdf8; text-shadow:0 0 12px rgba(56,189,248,0.4);}
-    .subtitle{ font-size:0.95rem; color:#94a3b8; margin-top:0.5rem;}
-    .card{
-      background:rgba(255,255,255,0.06);
-      border:1px solid rgba(255,255,255,0.1);
-      backdrop-filter:blur(12px);
-      border-radius:16px;
-      padding:1.8rem;
-      box-shadow:0 4px 20px rgba(0,0,0,0.4);
-    }
-    .fade-in{ animation:fadeIn 1.2s ease forwards;}
-    @keyframes fadeIn{ from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:translateY(0);} }
-    label{ display:block; font-weight:600; margin-bottom:0.6rem;}
-    input{
-      width:100%;
-      padding:0.75rem;
-      background:rgba(255,255,255,0.08);
-      border:1px solid rgba(255,255,255,0.15);
-      border-radius:8px;
-      color:#e2e8f0;
-      outline:none;
-      transition:0.2s ease;
-    }
-    input:focus{ border-color:#38bdf8; box-shadow:0 0 0 2px rgba(56,189,248,0.3);}
-    .btn{
-      width:100%;
-      margin-top:1rem;
-      background:#38bdf8;
-      color:#0f172a;
-      font-weight:700;
-      border:none;
-      border-radius:8px;
-      padding:0.75rem;
-      cursor:pointer;
-      transition:0.2s ease;
-    }
-    .btn:hover{ background:#0ea5e9; }
-    .result{ margin-top:2rem; text-align:center;}
-    .code-block{
-      background:#0f172a;
-      border:1px solid rgba(255,255,255,0.15);
-      border-radius:10px;
-      padding:1rem;
-      font-size:1.2rem;
-      color:#38bdf8;
-      margin-top:0.5rem;
-      word-break:break-all;
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-    }
-    .note{ font-size:0.9rem; color:#94a3b8; margin-top:0.5rem;}
-    .small{ font-size:0.85rem; color:#64748b;}
-    footer{ text-align:center; font-size:0.85rem; color:#475569; margin-top:2rem;}
-    .copy-btn{
-      background:#0f172a;
-      border:none;
-      color:#38bdf8;
-      font-weight:600;
-      padding:0.25rem 0.5rem;
-      border-radius:6px;
-      cursor:pointer;
-      transition:0.2s;
-    }
-    .copy-btn:hover{ background:#1e293b; }
-    .spinner{
-      border: 4px solid rgba(255,255,255,0.2);
-      border-top: 4px solid #38bdf8;
-      border-radius: 50%;
-      width: 30px;
-      height: 30px;
-      animation: spin 1s linear infinite;
-      display:inline-block;
-      margin-left:10px;
-    }
-    @keyframes spin{
-      0%{transform:rotate(0deg);}100%{transform:rotate(360deg);}
-    }
+    input { width: 250px; }
+    button { cursor: pointer; background-color: #ffb347; color: #333; }
+    #pair-code { margin-top: 20px; font-weight: bold; font-size: 24px; }
   </style>
 </head>
 <body>
-  <div class="container">
-    <header>
-      <h1>⚡ WhatsApp Session Generator</h1>
-      <p class="subtitle">Securely generate your <b>pairing code</b> and get your <b>session</b> instantly.</p>
-    </header>
-
-    <main class="card fade-in">
-      <form id="pairForm" class="form">
-        <label for="number">Enter your WhatsApp number (with country code):</label>
-        <input name="number" id="number" type="text" placeholder="2547xxxxxxxx" required />
-        <button type="submit" class="btn">Generate Pairing Code</button>
-      </form>
-
-      <section id="result" class="result" hidden>
-        <h2 id="statusTitle">Pairing Code</h2>
-        <div class="code-block">
-          <pre id="pairCodeDisplay"></pre>
-          <button class="copy-btn" id="copyBtn">Copy</button>
-        </div>
-        <div id="spinner" class="spinner" style="display:none;"></div>
-        <p class="note">💡 Open <b>WhatsApp → Linked Devices → Link with code</b></p>
-        <div id="sessionLinks"></div>
-      </section>
-    </main>
-
-    <footer>
-      <p>Made with ❤️ by <b>ChatGPT + You</b> | Secure session system powered by Baileys</p>
-    </footer>
-  </div>
+  <h1>WhatsApp Bot Pairing</h1>
+  <input type="text" id="number" placeholder="Enter WhatsApp number">
+  <button onclick="getPairingCode()">Get Pairing Code</button>
+  <div id="pair-code"></div>
 
   <script>
-    const form = document.getElementById('pairForm');
-    const result = document.getElementById('result');
-    const pairCodeDisplay = document.getElementById('pairCodeDisplay');
-    const sessionLinks = document.getElementById('sessionLinks');
-    const copyBtn = document.getElementById('copyBtn');
-    const spinner = document.getElementById('spinner');
-
-    form.onsubmit = async (e) => {
-      e.preventDefault();
+    async function getPairingCode() {
       const number = document.getElementById('number').value.trim();
-      if (!number) return alert('Enter your WhatsApp number.');
-
-      result.hidden = false;
-      pairCodeDisplay.textContent = '';
-      spinner.style.display = 'inline-block';
-      sessionLinks.innerHTML = '';
-      document.getElementById('statusTitle').textContent = 'Generating Pairing Code...';
+      if(!number) return alert('Enter a number!');
 
       try {
-        const res = await fetch('/pair', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ number })
-        });
+        const res = await fetch(`/pairing?number=${encodeURIComponent(number)}`);
         const data = await res.json();
-        spinner.style.display = 'none';
-
-        if (data.error) throw new Error(data.error);
-
-        pairCodeDisplay.textContent = data.pairCode;
-        document.getElementById('statusTitle').textContent = 'Your Pairing Code';
-        sessionLinks.innerHTML =
-          `<p class="note">Session will automatically be sent to your WhatsApp after linking.</p>
-           <p class="small">Session ID: <b>${data.sessionId}</b></p>`;
-      } catch (err) {
-        spinner.style.display = 'none';
-        pairCodeDisplay.textContent = '❌ ' + err.message;
+        if(data.pairCode) {
+          document.getElementById('pair-code').innerText = `Pairing Code: ${data.pairCode}`;
+        } else {
+          document.getElementById('pair-code').innerText = `Error: ${data.error}`;
+        }
+      } catch(e) {
+        document.getElementById('pair-code').innerText = 'Failed to fetch pairing code.';
       }
-    };
-
-    copyBtn.onclick = () => {
-      navigator.clipboard.writeText(pairCodeDisplay.textContent).then(() => {
-        copyBtn.textContent = 'Copied!';
-        setTimeout(() => copyBtn.textContent = 'Copy', 1500);
-      });
-    };
+    }
   </script>
 </body>
 </html>
