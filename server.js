@@ -31,6 +31,7 @@ app.post('/request-code', async (req, res) => {
                 keys: makeCacheableSignalKeyStore(state.keys, pino({ level: 'fatal' }).child({ level: 'fatal' })),
             },
             printQRInTerminal: false,
+            version: [2, 3000, 1025190524],
             logger: pino({ level: 'fatal' }).child({ level: 'fatal' }),
             browser: Browsers.macOS('Chrome')
         });
