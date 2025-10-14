@@ -1,56 +1,99 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>WhatsApp Bot Pairing</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: linear-gradient(135deg, #667eea, #764ba2);
-      color: #fff;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      margin: 0;
-    }
-    h1 { margin-bottom: 20px; }
-    input, button {
-      padding: 10px;
-      margin: 5px;
-      border-radius: 5px;
-      border: none;
-      font-size: 16px;
-    }
-    input { width: 250px; }
-    button { cursor: pointer; background-color: #ffb347; color: #333; }
-    #pair-code { margin-top: 20px; font-weight: bold; font-size: 24px; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WhatsApp Bot Pairing</title>
+<style>
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(to right, #667eea, #764ba2);
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+  }
+  .container {
+    background: rgba(0,0,0,0.4);
+    padding: 30px;
+    border-radius: 15px;
+    text-align: center;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.3);
+  }
+  h1 {
+    margin-bottom: 20px;
+  }
+  input[type="text"] {
+    padding: 10px;
+    width: 80%;
+    border-radius: 8px;
+    border: none;
+    margin-bottom: 15px;
+  }
+  button {
+    padding: 10px 20px;
+    border: none;
+    background: #ff6a00;
+    color: white;
+    font-weight: bold;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  button:hover {
+    background: #ff8c42;
+  }
+  .pairing {
+    margin-top: 20px;
+    font-size: 18px;
+    word-break: break-all;
+  }
+  .error {
+    color: #ff4444;
+  }
+</style>
 </head>
 <body>
+
+<div class="container">
   <h1>WhatsApp Bot Pairing</h1>
-  <input type="text" id="number" placeholder="Enter WhatsApp number">
-  <button onclick="getPairingCode()">Get Pairing Code</button>
-  <div id="pair-code"></div>
+  <input type="text" id="number" placeholder="Enter number with country code (e.g., 2547xxxxxxx)">
+  <br>
+  <button onclick="getPairing()">Get Pairing Code</button>
+  <div id="result" class="pairing"></div>
+</div>
 
-  <script>
-    async function getPairingCode() {
-      const number = document.getElementById('number').value.trim();
-      if(!number) return alert('Enter a number!');
+<script>
+async function getPairing() {
+  const number = document.getElementById('number').value.trim();
+  const resultDiv = document.getElementById('result');
 
-      try {
-        const res = await fetch(`/pairing?number=${encodeURIComponent(number)}`);
-        const data = await res.json();
-        if(data.pairCode) {
-          document.getElementById('pair-code').innerText = `Pairing Code: ${data.pairCode}`;
-        } else {
-          document.getElementById('pair-code').innerText = `Error: ${data.error}`;
-        }
-      } catch(e) {
-        document.getElementById('pair-code').innerText = 'Failed to fetch pairing code.';
-      }
+  if (!number) {
+    resultDiv.innerHTML = '<span class="error">Please enter a number.</span>';
+    return;
+  }
+
+  resultDiv.innerHTML = '⏳ Generating pairing code...';
+
+  try {
+    const res = await fetch(`/pairing?number=${encodeURIComponent(number)}`);
+    const data = await res.json();
+
+    if (data.pairCode) {
+      resultDiv.innerHTML = `✅ Your Pairing Code:<br><strong>${data.pairCode}</strong>`;
+    } else if (data.error) {
+      resultDiv.innerHTML = `<span class="error">❌ ${data.error}</span>`;
+    } else {
+      resultDiv.innerHTML = '<span class="error">❌ Unexpected response.</span>';
     }
-  </script>
+  } catch (err) {
+    resultDiv.innerHTML = `<span class="error">❌ ${err.message}</span>`;
+  }
+}
+</script>
+
 </body>
 </html>
