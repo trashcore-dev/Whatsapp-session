@@ -1,7 +1,7 @@
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
-const { default: makeWASocket, useMultiFileAuthState, jidDecode, fetchLatestBaileysVersion } = require('@whiskeysockets/baileys');
+const { default: makeWASocket, useMultiFileAuthState, fetchLatestBaileysVersion } = require('@whiskeysockets/baileys');
 
 const app = express();
 app.use(express.json());
@@ -15,14 +15,14 @@ function loadCodes() {
 }
 
 function saveCodes(codes) {
-  fs.writeFileSync(CODES_FILE, JSON.stringify(codes));
+  fs.writeFileSync(CODES_FILE, JSON.stringify(codes, null, 2));
 }
 
 function generateCode() {
   return Math.floor(10000000 + Math.random() * 90000000).toString();
 }
 
-// Request new code for a phone number
+// Endpoint to generate code
 app.post('/request-code', (req, res) => {
   const { phone } = req.body;
   if (!phone) return res.status(400).json({ error: 'Phone number required' });
@@ -32,6 +32,7 @@ app.post('/request-code', (req, res) => {
   codes[code] = { phone, used: false, sent: false };
   saveCodes(codes);
 
+  console.log(`Generated code ${code} for phone ${phone}`);
   res.json({ code });
 });
 
@@ -57,7 +58,7 @@ app.post('/request-code', (req, res) => {
 
     const codes = loadCodes();
 
-    // Check if message matches any code
+    // If message matches a code, send session ID
     if (codes[text] && !codes[text].sent) {
       const targetNumber = codes[text].phone.replace(/[^0-9]/g, '') + '@s.whatsapp.net';
       const sessionId = JSON.stringify(sock.authState?.creds || {});
@@ -74,4 +75,4 @@ app.post('/request-code', (req, res) => {
 
 })();
 
-app.listen(3000, () => console.log('Server running on http://localhost:3000'));
+app.listen(3000, () => console.log('Server running at http://localhost:3000'));
