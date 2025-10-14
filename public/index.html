@@ -3,23 +3,37 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>WhatsApp Session Request</title>
+<title>WhatsApp Session Generator</title>
 <style>
   body { font-family: Arial; background: linear-gradient(to right,#6a11cb,#2575fc); color: #fff; display:flex; flex-direction:column; align-items:center; justify-content:center; height:100vh;}
-  button { padding:12px 24px; border:none; border-radius:8px; cursor:pointer; background:#ff4d6d; color:#fff; font-size:16px; margin-top:20px;}
-  #code { margin-top:20px; background: rgba(255,255,255,0.1); padding:15px; border-radius:8px; word-break: break-all;}
+  input, button { padding:12px; border-radius:8px; border:none; margin:10px; font-size:16px;}
+  input { width: 200px; }
+  button { cursor:pointer; background:#ff4d6d; color:#fff; }
+  #code { margin-top:20px; padding:15px; background: rgba(255,255,255,0.1); border-radius:8px; word-break: break-all;}
 </style>
 </head>
 <body>
-<h1>Request WhatsApp Session</h1>
-<button onclick="requestCode()">Generate 8-digit Code</button>
+<h1>Get WhatsApp Session</h1>
+<input id="phone" placeholder="Enter your phone number"/>
+<button onclick="requestCode()">Generate Code</button>
 <div id="code">Your code will appear here</div>
 
 <script>
 async function requestCode() {
-  const res = await fetch('/request-code');
+  const phone = document.getElementById('phone').value.trim();
+  if(!phone) return alert('Enter phone number');
+
+  const res = await fetch('/request-code', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ phone })
+  });
   const data = await res.json();
-  document.getElementById('code').textContent = `Copy this code and send it to the bot via WhatsApp:\n${data.code}`;
+  if(data.code){
+    document.getElementById('code').textContent = `Send this 8-digit code to your WhatsApp to link your session:\n${data.code}`;
+  } else {
+    document.getElementById('code').textContent = `Error: ${data.error || 'Unknown error'}`;
+  }
 }
 </script>
 </body>
