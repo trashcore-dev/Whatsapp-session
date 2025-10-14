@@ -2,41 +2,51 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>WhatsApp Session Generator</title>
 <style>
-  body { font-family: Arial; background: linear-gradient(to right,#6a11cb,#2575fc); color: #fff; display:flex; flex-direction:column; align-items:center; justify-content:center; height:100vh;}
-  input, button { padding:12px; border-radius:8px; border:none; margin:10px; font-size:16px;}
-  input { width: 200px; }
-  button { cursor:pointer; background:#ff4d6d; color:#fff; }
-  #code { margin-top:20px; padding:15px; background: rgba(255,255,255,0.1); border-radius:8px; word-break: break-all;}
+body {
+  background: #1f1f2e;
+  color: #fff;
+  font-family: Arial, sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+}
+h1 { color: #00ffd5; }
+input, button { padding: 10px; margin: 10px; border-radius: 5px; border: none; }
+input { width: 200px; }
+button { background: #00ffd5; color: #000; cursor: pointer; }
+#code { margin-top: 20px; font-weight: bold; }
 </style>
 </head>
 <body>
-<h1>Get WhatsApp Session</h1>
-<input id="phone" placeholder="Enter your phone number"/>
-<button id="generateBtn">Generate Code</button>
-<div id="code">Your code will appear here</div>
+<h1>WhatsApp Session Generator</h1>
+<input type="text" id="phone" placeholder="Enter phone number" />
+<button id="generate">Generate 8-digit Code</button>
+<div id="code"></div>
 
 <script>
-document.getElementById('generateBtn').addEventListener('click', async () => {
+document.getElementById('generate').addEventListener('click', async () => {
   const phone = document.getElementById('phone').value.trim();
-  if(!phone) return alert('Enter phone number');
+  const codeDiv = document.getElementById('code');
+  if(!phone) return codeDiv.textContent = 'Enter your phone number';
 
   try {
     const res = await fetch('/request-code', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ phone })
     });
     const data = await res.json();
     if(data.code){
-      document.getElementById('code').textContent = `Send this 8-digit code to your WhatsApp to link your session:\n${data.code}`;
+      codeDiv.textContent = `Send this code to WhatsApp and link: ${data.code}`;
     } else {
-      document.getElementById('code').textContent = `Error: ${data.error || 'Unknown error'}`;
+      codeDiv.textContent = `Error: ${data.error}`;
     }
-  } catch (err) {
-    document.getElementById('code').textContent = `Error: ${err.message}`;
+  } catch(err) {
+    codeDiv.textContent = `Error: ${err.message}`;
   }
 });
 </script>
