@@ -1,52 +1,43 @@
-// server.js
 const express = require('express');
+const cors = require('cors');
 const path = require('path');
 const { default: makeWASocket, useMultiFileAuthState } = require('@whiskeysockets/baileys');
-const pino = require('pino');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
-
-// Serve static files (index.html, CSS, etc.)
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-// In-memory store for pairing code
-let pairingCode = null;
+// Serve static HTML
+app.use(express.static(path.join(__dirname)));
 
-// Start WhatsApp socket
-async function startWhatsApp() {
+// Pairing API
+app.get('/pairing', async (req, res) => {
+  const number = req.query.number;
+  if (!number) return res.status(400).json({ error: 'Missing number' });
+
+  try {
     const { state, saveCreds } = await useMultiFileAuthState('./session');
 
     const sock = makeWASocket({
-        logger: pino({ level: 'silent' }),
-        auth: state,
-        printQRInTerminal: false,
+      printQRInTerminal: false,
+      auth: state
     });
 
     sock.ev.on('creds.update', saveCreds);
 
-    // Listen for QR / pairing code
-    sock.ev.on('connection.update', update => {
-        if (update.qr) {
-            pairingCode = update.qr; // Save QR / pairing code to memory
-            console.log('[QR] Pairing code updated');
-        }
-    });
+    // Generate pairing code
+    const pairCode = await sock.requestPairingCode(number.replace(/[^0-9]/g, ''));
 
-    return sock;
-}
+    res.json({ pairCode });
 
-// Start WhatsApp
-startWhatsApp().catch(console.error);
-
-// API to get pairing code
-app.get('/pairing-code', (req, res) => {
-    if (!pairingCode) return res.json({ success: false, code: null });
-    res.json({ success: true, code: pairingCode });
+    // Close socket after sending code
+    setTimeout(() => sock.logout(), 5000);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // Start server
-app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
-});
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
