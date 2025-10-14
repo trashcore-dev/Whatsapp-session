@@ -1,15 +1,16 @@
 const express = require('express');
-const cors = require('cors');
 const path = require('path');
 const { default: makeWASocket, useMultiFileAuthState } = require('@whiskeysockets/baileys');
 
 const app = express();
-app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 
-// Serve static HTML
-app.use(express.static(path.join(__dirname)));
+// Serve the entire public folder as static
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Root route sends index.html from public folder
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
 
 // Pairing API
 app.get('/pairing', async (req, res) => {
@@ -26,7 +27,6 @@ app.get('/pairing', async (req, res) => {
 
     sock.ev.on('creds.update', saveCreds);
 
-    // Generate pairing code
     const pairCode = await sock.requestPairingCode(number.replace(/[^0-9]/g, ''));
 
     res.json({ pairCode });
@@ -38,6 +38,5 @@ app.get('/pairing', async (req, res) => {
   }
 });
 
-// Start server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
