@@ -15,26 +15,30 @@
 <body>
 <h1>Get WhatsApp Session</h1>
 <input id="phone" placeholder="Enter your phone number"/>
-<button onclick="requestCode()">Generate Code</button>
+<button id="generateBtn">Generate Code</button>
 <div id="code">Your code will appear here</div>
 
 <script>
-async function requestCode() {
+document.getElementById('generateBtn').addEventListener('click', async () => {
   const phone = document.getElementById('phone').value.trim();
   if(!phone) return alert('Enter phone number');
 
-  const res = await fetch('/request-code', {
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({ phone })
-  });
-  const data = await res.json();
-  if(data.code){
-    document.getElementById('code').textContent = `Send this 8-digit code to your WhatsApp to link your session:\n${data.code}`;
-  } else {
-    document.getElementById('code').textContent = `Error: ${data.error || 'Unknown error'}`;
+  try {
+    const res = await fetch('/request-code', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ phone })
+    });
+    const data = await res.json();
+    if(data.code){
+      document.getElementById('code').textContent = `Send this 8-digit code to your WhatsApp to link your session:\n${data.code}`;
+    } else {
+      document.getElementById('code').textContent = `Error: ${data.error || 'Unknown error'}`;
+    }
+  } catch (err) {
+    document.getElementById('code').textContent = `Error: ${err.message}`;
   }
-}
+});
 </script>
 </body>
 </html>
