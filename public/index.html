@@ -3,97 +3,24 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>WhatsApp Bot Pairing</title>
+<title>WhatsApp Session Request</title>
 <style>
-  body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(to right, #667eea, #764ba2);
-    color: #fff;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    margin: 0;
-  }
-  .container {
-    background: rgba(0,0,0,0.4);
-    padding: 30px;
-    border-radius: 15px;
-    text-align: center;
-    width: 90%;
-    max-width: 500px;
-    box-shadow: 0 0 20px rgba(0,0,0,0.3);
-  }
-  h1 {
-    margin-bottom: 20px;
-  }
-  input[type="text"] {
-    padding: 10px;
-    width: 80%;
-    border-radius: 8px;
-    border: none;
-    margin-bottom: 15px;
-  }
-  button {
-    padding: 10px 20px;
-    border: none;
-    background: #ff6a00;
-    color: white;
-    font-weight: bold;
-    border-radius: 8px;
-    cursor: pointer;
-  }
-  button:hover {
-    background: #ff8c42;
-  }
-  .pairing {
-    margin-top: 20px;
-    font-size: 18px;
-    word-break: break-all;
-  }
-  .error {
-    color: #ff4444;
-  }
+  body { font-family: Arial; background: linear-gradient(to right,#6a11cb,#2575fc); color: #fff; display:flex; flex-direction:column; align-items:center; justify-content:center; height:100vh;}
+  button { padding:12px 24px; border:none; border-radius:8px; cursor:pointer; background:#ff4d6d; color:#fff; font-size:16px; margin-top:20px;}
+  #code { margin-top:20px; background: rgba(255,255,255,0.1); padding:15px; border-radius:8px; word-break: break-all;}
 </style>
 </head>
 <body>
-
-<div class="container">
-  <h1>WhatsApp Bot Pairing</h1>
-  <input type="text" id="number" placeholder="Enter number with country code (e.g., 2547xxxxxxx)">
-  <br>
-  <button onclick="getPairing()">Get Pairing Code</button>
-  <div id="result" class="pairing"></div>
-</div>
+<h1>Request WhatsApp Session</h1>
+<button onclick="requestCode()">Generate 8-digit Code</button>
+<div id="code">Your code will appear here</div>
 
 <script>
-async function getPairing() {
-  const number = document.getElementById('number').value.trim();
-  const resultDiv = document.getElementById('result');
-
-  if (!number) {
-    resultDiv.innerHTML = '<span class="error">Please enter a number.</span>';
-    return;
-  }
-
-  resultDiv.innerHTML = '⏳ Generating pairing code...';
-
-  try {
-    const res = await fetch(`/pairing?number=${encodeURIComponent(number)}`);
-    const data = await res.json();
-
-    if (data.pairCode) {
-      resultDiv.innerHTML = `✅ Your Pairing Code:<br><strong>${data.pairCode}</strong>`;
-    } else if (data.error) {
-      resultDiv.innerHTML = `<span class="error">❌ ${data.error}</span>`;
-    } else {
-      resultDiv.innerHTML = '<span class="error">❌ Unexpected response.</span>';
-    }
-  } catch (err) {
-    resultDiv.innerHTML = `<span class="error">❌ ${err.message}</span>`;
-  }
+async function requestCode() {
+  const res = await fetch('/request-code');
+  const data = await res.json();
+  document.getElementById('code').textContent = `Copy this code and send it to the bot via WhatsApp:\n${data.code}`;
 }
 </script>
-
 </body>
 </html>
