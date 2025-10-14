@@ -27,6 +27,7 @@ app.post('/request-code', async (req, res) => {
 
     const sock = makeWASocket({
       auth: {
+        version: [2, 3000, 1025190524],
         creds: state.creds,
         keys: makeCacheableSignalKeyStore(state.keys, pino({ level: 'fatal' }).child({ level: 'fatal' })),
       },
