@@ -1,78 +1,89 @@
 const express = require('express');
-const fs = require('fs');
-const path = require('path');
-const { default: makeWASocket, useMultiFileAuthState, fetchLatestBaileysVersion } = require('@whiskeysockets/baileys');
+const cors = require('cors');
+const bodyParser = require('body-parser');
+const pino = require('pino');
+const { default: makeWASocket, useMultiFileAuthState, fetchLatestBaileysVersion, makeCacheableSignalKeyStore } = require('@whiskeysockets/baileys');
 
 const app = express();
-app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
+const PORT = process.env.PORT || 3000;
 
-const CODES_FILE = './codes.json';
-if (!fs.existsSync(CODES_FILE)) fs.writeFileSync(CODES_FILE, JSON.stringify({}));
+app.use(cors());
+app.use(bodyParser.json());
+app.use(express.static('public'));
 
-function loadCodes() {
-  return JSON.parse(fs.readFileSync(CODES_FILE));
-}
+const log = pino({ level: 'info' });
 
-function saveCodes(codes) {
-  fs.writeFileSync(CODES_FILE, JSON.stringify(codes, null, 2));
-}
+// Store pending codes
+let pendingCodes = {}; // { code: phone }
 
 function generateCode() {
-  return Math.floor(10000000 + Math.random() * 90000000).toString();
+  return Math.floor(10000000 + Math.random() * 90000000).toString(); // 8-digit code
 }
 
-// Endpoint to generate code
-app.post('/request-code', (req, res) => {
-  const { phone } = req.body;
-  if (!phone) return res.status(400).json({ error: 'Phone number required' });
-
-  const code = generateCode();
-  const codes = loadCodes();
-  codes[code] = { phone, used: false, sent: false };
-  saveCodes(codes);
-
-  console.log(`Generated code ${code} for phone ${phone}`);
-  res.json({ code });
-});
-
-// WhatsApp connection
+let sock;
 (async () => {
-  const { state, saveCreds } = await useMultiFileAuthState('./sessions');
+  const { state, saveCreds } = await useMultiFileAuthState('./session');
   const { version } = await fetchLatestBaileysVersion();
 
-  const sock = makeWASocket({
+  sock = makeWASocket({
     version,
-    printQRInTerminal: true,
-    auth: state
+    auth: {
+      creds: state.creds,
+      keys: makeCacheableSignalKeyStore(state.keys)
+    },
+    printQRInTerminal: false,
+    logger: pino({ level: 'silent' }),
   });
 
   sock.ev.on('creds.update', saveCreds);
 
-  sock.ev.on('messages.upsert', async ({ messages }) => {
-    const m = messages[0];
-    if (!m.message) return;
-
-    const text = m.message.conversation || m.message.extendedTextMessage?.text;
-    if (!text) return;
-
-    const codes = loadCodes();
-
-    // If message matches a code, send session ID
-    if (codes[text] && !codes[text].sent) {
-      const targetNumber = codes[text].phone.replace(/[^0-9]/g, '') + '@s.whatsapp.net';
-      const sessionId = JSON.stringify(sock.authState?.creds || {});
-      try {
-        await sock.sendMessage(targetNumber, { text: `✅ Your session ID:\n${sessionId}` });
-        codes[text].sent = true;
-        saveCodes(codes);
-        console.log(`Session sent to ${targetNumber} for code ${text}`);
-      } catch (err) {
-        console.error('Failed to send session ID:', err);
-      }
+  sock.ev.on('connection.update', (update) => {
+    const { connection, lastDisconnect } = update;
+    if (connection === 'close') {
+      log.info('Connection closed, reconnecting...');
+    } else if (connection === 'open') {
+      log.info('Bot connected!');
     }
   });
-
 })();
 
-app.listen(3000, () => console.log('Server running at http://localhost:3000'));
+// Endpoint to request pairing code
+app.post('/request-code', async (req, res) => {
+  try {
+    const { phone } = req.body;
+    if (!phone) return res.status(400).json({ error: 'Phone number required' });
+
+    const code = generateCode();
+    pendingCodes[code] = { phone, sent: false };
+    log.info(`Generated code ${code} for phone ${phone}`);
+
+    res.json({ code });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Endpoint to simulate linking session ID
+app.post('/link-session', async (req, res) => {
+  try {
+    const { code } = req.body;
+    if (!pendingCodes[code]) return res.status(400).json({ error: 'Invalid code' });
+
+    const { phone } = pendingCodes[code];
+    const sessionID = `SESSION-${Math.random().toString(36).slice(2, 18)}`; // Example session ID
+
+    // Send session ID to the phone via WhatsApp
+    if (sock) {
+      await sock.sendMessage(`${phone}@s.whatsapp.net`, { text: `Your session ID is:\n${sessionID}` });
+      pendingCodes[code].sent = true;
+    }
+
+    res.json({ success: true, sessionID });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to send session ID' });
+  }
+});
+
+app.listen(PORT, () => log.info(`Server running on port ${PORT}`));
