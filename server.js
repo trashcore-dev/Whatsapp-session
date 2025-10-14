@@ -7,7 +7,7 @@ const {
   useMultiFileAuthState,
   makeCacheableSignalKeyStore,
   fetchLatestBaileysVersion
-} = require("@whiskeysocket/baileys");
+} = require("@whiskeysockets/baileys");
 const { PORT } = require("./config");
 
 const app = express();
