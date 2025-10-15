@@ -1,6 +1,7 @@
 {
   "name": "ai-copilot-website",
   "version": "1.0.0",
+  "type": "module",
   "description": "A simple AI assistant website using Zenz API with Vercel backend proxy",
   "main": "index.js",
   "scripts": {
