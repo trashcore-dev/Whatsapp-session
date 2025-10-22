@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRASHCORE-ULTRA</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: #000000;
+            color: #f0f0f0;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .container {
+            max-width: 800px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 20px;
+        }
+        
+        .logo {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .logo i {
+            font-size: 3rem;
+            color: #25D366;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px rgba(138, 43, 226, 0.5);
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.8;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .actions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-top: 20px;
+        }
+        
+        .action-card {
+            background: rgba(30, 30, 40, 0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 25px;
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(138, 43, 226, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+        }
+        
+        .action-card:hover {
+            transform: translateY(-5px);
+            background: rgba(40, 40, 55, 0.8);
+            box-shadow: 0 12px 40px rgba(138, 43, 226, 0.3);
+            border-color: rgba(138, 43, 226, 0.5);
+        }
+        
+        .action-card i {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            display: block;
+        }
+        
+        .github-actions i {
+            color: #f5f5f5;
+        }
+        
+        .session-actions i {
+            color: #4ade80;
+        }
+        
+        .deploy-actions i {
+            color: #8a2be2;
+        }
+        
+        .action-card h3 {
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+            color: #e0d6ff;
+        }
+        
+        .action-card p {
+            margin-bottom: 20px;
+            opacity: 0.8;
+            font-size: 0.95rem;
+        }
+        
+        .btn {
+            background: rgba(138, 43, 226, 0.2);
+            color: #f0f0f0;
+            border: 2px solid rgba(138, 43, 226, 0.5);
+            padding: 12px 25px;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .btn:hover {
+            background: rgba(138, 43, 226, 0.4);
+            transform: scale(1.03);
+            box-shadow: 0 0 15px rgba(138, 43, 226, 0.4);
+        }
+        
+        .btn:active {
+            transform: scale(0.98);
+        }
+        
+        .btn-github {
+            background: rgba(60, 60, 70, 0.5);
+            border-color: rgba(200, 200, 200, 0.3);
+        }
+        
+        .btn-github:hover {
+            background: rgba(80, 80, 90, 0.6);
+            box-shadow: 0 0 10px rgba(200, 200, 200, 0.2);
+        }
+        
+        .btn-session {
+            background: rgba(74, 222, 128, 0.2);
+            border-color: rgba(74, 222, 128, 0.4);
+        }
+        
+        .btn-session:hover {
+            background: rgba(74, 222, 128, 0.4);
+            box-shadow: 0 0 15px rgba(74, 222, 128, 0.4);
+        }
+        
+        .btn-deploy {
+            background: rgba(138, 43, 226, 0.2);
+            border-color: rgba(138, 43, 226, 0.5);
+        }
+        
+        .btn-deploy:hover {
+            background: rgba(138, 43, 226, 0.4);
+            box-shadow: 0 0 15px rgba(138, 43, 226, 0.4);
+        }
+        
+        .typing-section {
+            margin-top: 50px;
+            padding: 30px;
+            background: rgba(30, 30, 40, 0.7);
+            border-radius: 16px;
+            border: 1px solid rgba(220, 20, 60, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+            text-align: center;
+        }
+        
+        .typing-title {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            color: #ff6b6b;
+            text-shadow: 0 0 10px rgba(220, 20, 60, 0.3);
+        }
+        
+        .typing-text {
+            font-size: 1.2rem;
+            line-height: 1.8;
+            color: #ff4d4d;
+            min-height: 80px;
+            text-align: left;
+            padding: 15px;
+            background: rgba(20, 20, 30, 0.5);
+            border-radius: 10px;
+            border-left: 3px solid #ff4d4d;
+        }
+        
+        .typing-cursor {
+            display: inline-block;
+            width: 2px;
+            height: 1.2em;
+            background-color: #ff4d4d;
+            margin-left: 2px;
+            animation: blink 1s infinite;
+        }
+        
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+        
+        footer {
+            margin-top: 50px;
+            text-align: center;
+            padding: 20px;
+            opacity: 0.7;
+            font-size: 0.9rem;
+            border-top: 1px solid rgba(138, 43, 226, 0.2);
+        }
+        
+        @media (max-width: 600px) {
+            .actions-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .logo i {
+                font-size: 2.5rem;
+            }
+            
+            .typing-text {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <i class="fab fa-whatsapp"></i>
+                <h1>TRASHCORE ULTRA BOT</h1>
+            </div>
+            <p class="subtitle">One-click actions to manage your WhatsApp Node.js bot deployment and repository</p>
+        </header>
+        
+        <div class="actions-grid">
+            <div class="action-card github-actions">
+                <i class="fab fa-github"></i>
+                <h3>Fork Repository</h3>
+                <p>Create your own copy of the Trashcore ultra repository to customize and deploy</p>
+                <button class="btn btn-github" onclick="forkRepo()">
+                    <i class="fas fa-code-branch"></i> Fork Repo
+                </button>
+            </div>
+            
+            <div class="action-card github-actions">
+                <i class="fas fa-star"></i>
+                <h3>Star Repository</h3>
+                <p>Show your support by starring the repository on GitHub</p>
+                <button class="btn btn-github" onclick="starRepo()">
+                    <i class="fas fa-star"></i> Star Repo
+                </button>
+            </div>
+            
+            <div class="action-card session-actions">
+                <i class="fas fa-qrcode"></i>
+                <h3>Scan Session ID</h3>
+                <p>Generate a new session ID by scanning the code with your WhatsApp</p>
+                <button class="btn btn-session" onclick="scanSession()">
+                    <i class="fas fa-qrcode"></i> Scan Session ID
+                </button>
+            </div>
+            
+            <div class="action-card deploy-actions">
+                <i class="fab fa-heroku"></i>
+                <h3>Deploy on Heroku</h3>
+                <p>Deploy your WhatsApp bot to Heroku with one click</p>
+                <button class="btn btn-deploy" onclick="deployHeroku()">
+                    <i class="fab fa-heroku"></i> Deploy on Heroku
+                </button>
+            </div>
+            
+            <div class="action-card deploy-actions">
+                <i class="fas fa-server"></i>
+                <h3>Deploy on Bot Hosting</h3>
+                <p>Deploy your WhatsApp bot to Bot Hosting Net platform</p>
+                <button class="btn btn-deploy" onclick="deployBotHosting()">
+                    <i class="fas fa-server"></i> Deploy on Bot Hosting
+                </button>
+            </div>
+            
+            <div class="action-card deploy-actions">
+                <i class="fas fa-link"></i>
+                <h3>Deploy on OptiLink</h3>
+                <p>Deploy your WhatsApp bot to the OptiLink platform</p>
+                <button class="btn btn-deploy" onclick="deployOptiLink()">
+                    <i class="fas fa-link"></i> Deploy on OptiLink
+                </button>
+            </div>
+            
+            <div class="action-card deploy-actions">
+                <i class="fas fa-shield-alt"></i>
+                <h3>Deploy on Cypher X</h3>
+                <p>Deploy your WhatsApp bot to the Cypher X platform</p>
+                <button class="btn btn-deploy" onclick="deployCypherX()">
+                    <i class="fas fa-shield-alt"></i> Deploy on Cypher X
+                </button>
+            </div>
+        </div>
+        
+        <div class="typing-section">
+            <h2 class="typing-title">Why Deploy Trashcore Ultra Bot?</h2>
+            <div class="typing-text" id="typing-text"></div>
+        </div>
+        
+        <footer>
+            <p>Trashcore Ultra Bot &copy; 2025 | Created by Giddy Tennor</p>
+        </footer>
+    </div>
+
+    <script>
+        const REPO_URL = "https://github.com/Tennor-modz/trashcore-ultra";
+        
+        function forkRepo() {
+            window.open(`${REPO_URL}/fork`, '_blank');
+        }
+        
+        function starRepo() {
+            window.open(REPO_URL, '_blank');
+        }
+        
+        function scanSession() {
+            window.open("https://trashcore-pairing-385361a48654.herokuapp.com/pair", '_blank');
+        }
+        
+        function deployHeroku() {
+            const herokuUrl = `https://heroku.com/deploy?template=${encodeURIComponent(REPO_URL)}`;
+            window.open(herokuUrl, '_blank');
+        }
+        
+        function deployBotHosting() {
+            window.open("https://bot-hosting.net/", '_blank');
+        }
+        
+        function deployOptiLink() {
+            window.open("https://optiklink.com", '_blank');
+        }
+        
+        function deployCypherX() {
+            window.open("https://platform.cypherx.space/", '_blank');
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            const textElement = document.getElementById('typing-text');
+            const fullText = "Why deploy and use Trashcore Ultra Bot?\n\nIt's got cool features, such as:\n• Managing groups\n• Auto status views\n• Media downloads\n• AI features\n• And many more!";
+            let index = 0;
+            const typingSpeed = 50;
+            
+            function typeText() {
+                if (index < fullText.length) {
+                    if (fullText.charAt(index) === '\n') {
+                        textElement.innerHTML += '<br>';
+                    } else {
+                        textElement.innerHTML += fullText.charAt(index);
+                    }
+                    index++;
+                    setTimeout(typeText, typingSpeed);
+                } else {
+                    textElement.innerHTML += '<span class="typing-cursor"></span>';
+                }
+            }
+            
+            setTimeout(typeText, 500);
+        });
+    </script>
+</body>
+</html>
